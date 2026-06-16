@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>License Key Manager</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>">
+</head>
+<body>
+    <!-- ═══════════════════ LOGIN PAGE ═══════════════════ -->
+    <div id="login-page" class="login-container">
+        <div class="login-bg-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="login-logo-icon">🔐</div>
+                <h1 class="login-title">License Key Manager</h1>
+                <p class="login-subtitle">Sign in to your admin dashboard</p>
+            </div>
+            <form id="login-form" class="login-form" autocomplete="off">
+                <div class="form-group">
+                    <label class="form-label" for="login-username">Username</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="login-username" class="form-input" placeholder="Enter your username" required autocomplete="username">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="login-password">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
+                    </div>
+                </div>
+                <div id="login-error" class="login-error" style="display:none;"></div>
+                <button type="submit" id="login-btn" class="btn btn-primary btn-login">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-loader" style="display:none;"></span>
+                </button>
+            </form>
+            <div class="login-footer">
+                <p>Secure admin access only</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════ DASHBOARD LAYOUT ═══════════════════ -->
+    <div id="app-layout" class="app-layout" style="display:none;">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-brand">
+                <span class="sidebar-brand-icon">🔑</span>
+                <span class="sidebar-brand-text">LKM</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="sidebar-item active" data-view="dashboard">
+                    <span class="sidebar-icon">📊</span>
+                    <span class="sidebar-text">Dashboard</span>
+                </a>
+                <a href="#keys" class="sidebar-item" data-view="keys">
+                    <span class="sidebar-icon">🔑</span>
+                    <span class="sidebar-text">Keys</span>
+                </a>
+                <a href="#generate" class="sidebar-item" data-view="generate">
+                    <span class="sidebar-icon">⚡</span>
+                    <span class="sidebar-text">Generate Keys</span>
+                </a>
+                <a href="#users" class="sidebar-item" data-view="users" id="nav-users">
+                    <span class="sidebar-icon">👥</span>
+                    <span class="sidebar-text">Users</span>
+                </a>
+                <a href="#settings" class="sidebar-item" data-view="settings">
+                    <span class="sidebar-icon">⚙️</span>
+                    <span class="sidebar-text">Settings</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-version">v2.0</div>
+            </div>
+        </aside>
+
+        <!-- Mobile sidebar overlay -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Main area -->
+        <div class="main-area">
+            <!-- Topbar -->
+            <header class="topbar">
+                <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="topbar-title" id="topbar-title">Dashboard</div>
+                <div class="topbar-right">
+                    <div class="topbar-user">
+                        <span class="topbar-username" id="topbar-username"></span>
+                        <span class="role-badge" id="topbar-role"></span>
+                    </div>
+                    <button id="logout-btn" class="btn btn-secondary btn-sm" title="Logout">
+                        <span>🚪</span> Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Views -->
+            <main class="content">
+                <!-- Dashboard View -->
+                <div id="view-dashboard" class="view active">
+                    <div class="view-header">
+                        <h2 class="view-title">Overview</h2>
+                        <p class="view-desc">Your license key management at a glance</p>
+                    </div>
+                    <div class="stats-grid" id="stats-grid">
+                        <div class="stat-card stat-total">
+                            <div class="stat-icon">🔑</div>
+                            <div class="stat-info">
+                                <div class="stat-value" data-stat="total_keys">0</div>
+                                <div class="stat-label">Total Keys</div>
+                            </div>
+                            <div class="stat-glow"></div>
+                        </div>
+                        <div class="stat-card stat-active">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-info">
+                                <div class="stat-value" data-stat="active_keys">0</div>
+                                <div class="stat-label">Active Keys</div>
+                            </div>
+                            <div class="stat-glow"></div>
+                        </div>
+                        <div class="stat-card stat-expired">
+                            <div class="stat-icon">⏰</div>
+                            <div class="stat-info">
+                                <div class="stat-value" data-stat="expired_keys">0</div>
+                                <div class="stat-label">Expired Keys</div>
+                            </div>
+                            <div class="stat-glow"></div>
+                        </div>
+                        <div class="stat-card stat-revoked">
+                            <div class="stat-icon">🚫</div>
+                            <div class="stat-info">
+                                <div class="stat-value" data-stat="revoked_keys">0</div>
+                                <div class="stat-label">Revoked Keys</div>
+                            </div>
+                            <div class="stat-glow"></div>
+                        </div>
+                        <div class="stat-card stat-users">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <div class="stat-value" data-stat="total_users">0</div>
+                                <div class="stat-label">Total Users</div>
+                            </div>
+                            <div class="stat-glow"></div>
+                        </div>
+                        <div class="stat-card stat-validations">
+                            <div class="stat-icon">🔄</div>
+                            <div class="stat-info">
+                                <div class="stat-value" data-stat="total_validations">0</div>
+                                <div class="stat-label">Total Validations</div>
+                            </div>
+                            <div class="stat-glow"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Keys View -->
+                <div id="view-keys" class="view">
+                    <div class="view-header">
+                        <h2 class="view-title">License Keys</h2>
+                        <p class="view-desc">Manage all your license keys</p>
+                    </div>
+                    <div class="keys-toolbar">
+                        <div class="search-bar">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="keys-search" class="form-input search-input" placeholder="Search by key, HWID, or notes...">
+                        </div>
+                        <div class="filter-tabs" id="filter-tabs">
+                            <button class="filter-tab active" data-status="all">All</button>
+                            <button class="filter-tab" data-status="active">Active</button>
+                            <button class="filter-tab" data-status="expired">Expired</button>
+                            <button class="filter-tab" data-status="revoked">Revoked</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="keys-table">
+                            <thead>
+                                <tr class="table-header">
+                                    <th>Key</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Expires</th>
+                                    <th>HWID</th>
+                                    <th>Created By</th>
+                                    <th>Validations</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="keys-tbody"></tbody>
+                        </table>
+                        <div id="keys-empty" class="empty-state" style="display:none;">
+                            <div class="empty-icon">🔍</div>
+                            <h3>No keys found</h3>
+                            <p>Try adjusting your search or filters</p>
+                        </div>
+                        <div id="keys-loading" class="loading-container" style="display:none;">
+                            <div class="loading-spinner"></div>
+                            <p>Loading keys...</p>
+                        </div>
+                    </div>
+                    <div class="pagination" id="keys-pagination"></div>
+                </div>
+
+                <!-- Generate View -->
+                <div id="view-generate" class="view">
+                    <div class="view-header">
+                        <h2 class="view-title">Generate Keys</h2>
+                        <p class="view-desc">Create new license keys</p>
+                    </div>
+                    <div class="generate-layout">
+                        <div class="generate-form-card glass-card">
+                            <h3 class="card-title">Key Configuration</h3>
+                            <form id="generate-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label" for="gen-prefix">Prefix</label>
+                                        <input type="text" id="gen-prefix" class="form-input" value="LIC" placeholder="LIC" maxlength="10">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="gen-quantity">Quantity</label>
+                                        <input type="number" id="gen-quantity" class="form-input" value="1" min="1" max="100" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="gen-expiry">Expiry Date</label>
+                                    <input type="datetime-local" id="gen-expiry" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="gen-notes">Notes</label>
+                                    <textarea id="gen-notes" class="form-input form-textarea" rows="3" placeholder="Optional notes for these keys..."></textarea>
+                                </div>
+                                <button type="submit" id="gen-btn" class="btn btn-primary btn-full">
+                                    <span class="btn-text">⚡ Generate Keys</span>
+                                    <span class="btn-loader" style="display:none;"></span>
+                                </button>
+                            </form>
+                        </div>
+                        <div id="generated-keys-panel" class="generated-keys-card glass-card" style="display:none;">
+                            <div class="generated-header">
+                                <h3 class="card-title">Generated Keys</h3>
+                                <button id="copy-all-btn" class="btn btn-secondary btn-sm">📋 Copy All</button>
+                            </div>
+                            <div id="generated-keys-list" class="generated-keys-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users View -->
+                <div id="view-users" class="view">
+                    <div class="view-header">
+                        <div>
+                            <h2 class="view-title">User Management</h2>
+                            <p class="view-desc">Manage admin accounts and roles</p>
+                        </div>
+                        <button id="add-user-btn" class="btn btn-primary">
+                            <span>➕</span> Add User
+                        </button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="users-table">
+                            <thead>
+                                <tr class="table-header">
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Created By</th>
+                                    <th>Created At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody"></tbody>
+                        </table>
+                        <div id="users-loading" class="loading-container" style="display:none;">
+                            <div class="loading-spinner"></div>
+                            <p>Loading users...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div id="view-settings" class="view">
+                    <div class="view-header">
+                        <h2 class="view-title">Settings</h2>
+                        <p class="view-desc">Manage your account</p>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="glass-card">
+                            <h3 class="card-title">Account Information</h3>
+                            <div class="account-info">
+                                <div class="account-row">
+                                    <span class="account-label">Username</span>
+                                    <span class="account-value" id="settings-username">—</span>
+                                </div>
+                                <div class="account-row">
+                                    <span class="account-label">Role</span>
+                                    <span class="account-value" id="settings-role">—</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glass-card">
+                            <h3 class="card-title">Change Password</h3>
+                            <form id="password-form">
+                                <div class="form-group">
+                                    <label class="form-label" for="current-password">Current Password</label>
+                                    <input type="password" id="current-password" class="form-input" required placeholder="Enter current password">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="new-password">New Password</label>
+                                    <input type="password" id="new-password" class="form-input" required placeholder="Enter new password" minlength="6">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="confirm-password">Confirm Password</label>
+                                    <input type="password" id="confirm-password" class="form-input" required placeholder="Confirm new password">
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="btn-text">🔒 Update Password</span>
+                                    <span class="btn-loader" style="display:none;"></span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ═══════════════════ MODAL ═══════════════════ -->
+    <div id="modal" class="modal" style="display:none;">
+        <div class="modal-overlay" id="modal-overlay"></div>
+        <div class="modal-content" id="modal-content"></div>
+    </div>
+
+    <!-- ═══════════════════ TOAST CONTAINER ═══════════════════ -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ═══════════════════ CONFIRMATION DIALOG ═══════════════════ -->
+    <div id="confirm-dialog" class="modal" style="display:none;">
+        <div class="modal-overlay" id="confirm-overlay"></div>
+        <div class="modal-content confirm-modal-content" id="confirm-content"></div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
