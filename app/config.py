@@ -40,20 +40,17 @@ class Settings(BaseSettings):
             )
 
         # Normalise DATABASE_URL for async drivers
+             # Normalise DATABASE_URL for async drivers
         url = self.DATABASE_URL
-        if url.startswith("postgres://") or url.startswith("postgresql://"):
-            # Render provides 'postgres://', but SQLAlchemy requires 'postgresql://'
-            # For async we need 'postgresql+asyncpg://'
+        if url.startswith("postgres://") and not url.startswith("postgresql://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+            object.__setattr__(self, "DATABASE_URL", url)
+            logger.info("Converted postgres:// to use asyncpg driver.")
+        elif url.startswith("postgresql://") and not url.startswith("postgresql+asyncpg://"):
             url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
-            # Fix double +asyncpg if it was already postgresql+asyncpg://
-            url = url.replace("+asyncpg+asyncpg", "+asyncpg")
             object.__setattr__(self, "DATABASE_URL", url)
-            logger.info("Converted DATABASE_URL to use asyncpg driver.")
-        elif url.startswith("sqlite://") and "aiosqlite" not in url:
-            url = url.replace("sqlite://", "sqlite+aiosqlite://", 1)
-            object.__setattr__(self, "DATABASE_URL", url)
-            logger.info("Converted DATABASE_URL to use aiosqlite driver.")
+            logger.info("Converted postgresql:// to use asyncpg driver.")
+
 
 
 settings = Settings()
